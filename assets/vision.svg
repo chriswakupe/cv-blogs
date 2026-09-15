@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="520" viewBox="0 0 480 520" fill="none">
+  <defs><radialGradient id="glow"><stop stop-color="#ffb400" stop-opacity=".16"/><stop offset="1" stop-color="#ffb400" stop-opacity="0"/></radialGradient><linearGradient id="wire" x1="80" y1="80" x2="370" y2="390" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb400"/><stop offset="1" stop-color="#8b7135" stop-opacity=".25"/></linearGradient></defs>
+  <circle cx="240" cy="246" r="220" fill="url(#glow)"/>
+  <g stroke="#d1aa55" stroke-opacity=".1"><path d="M0 126h480M0 186h480M0 246h480M0 306h480M0 366h480M60 40v420M120 40v420M180 40v420M240 40v420M300 40v420M360 40v420M420 40v420"/></g>
+  <g transform="rotate(-23 240 246)" stroke="url(#wire)" stroke-width=".8"><circle cx="240" cy="246" r="155"/><ellipse cx="240" cy="246" rx="28" ry="155"/>
+<ellipse cx="240" cy="246" rx="62" ry="155"/>
+<ellipse cx="240" cy="246" rx="96" ry="155"/>
+<ellipse cx="240" cy="246" rx="126" ry="155"/>
+<ellipse cx="240" cy="246" rx="148" ry="155"/><ellipse cx="240" cy="115" rx="80" ry="17"/>
+<ellipse cx="240" cy="147" rx="121" ry="28"/>
+<ellipse cx="240" cy="190" rx="146" ry="36"/>
+<ellipse cx="240" cy="246" rx="155" ry="39"/>
+<ellipse cx="240" cy="302" rx="146" ry="36"/>
+<ellipse cx="240" cy="345" rx="121" ry="28"/>
+<ellipse cx="240" cy="377" rx="80" ry="17"/></g>
+  <ellipse cx="240" cy="246" rx="202" ry="82" transform="rotate(-36 240 246)" stroke="#ffb400" stroke-opacity=".65"/>
+  <path d="M88 136v-31h31M361 105h31v31M392 357v31h-31M119 388H88v-31" stroke="#ffb400" stroke-width="2"/>
+  <path d="M230 246h20M240 236v20" stroke="#ffb400"/>
+  <g fill="#ffb400"><circle cx="83" cy="363" r="4"/><circle cx="396" cy="129" r="4"/><circle cx="240" cy="91" r="3"/></g>
+  <path d="M83 363v66h69M396 129V69h-49" stroke="#ffb400" stroke-opacity=".45"/>
+  <g fill="#aa9566" font-family="monospace" font-size="8" letter-spacing="2"><text x="158" y="432">PERCEPTION</text><text x="268" y="72">MULTI-VIEW</text></g>
+</svg>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Wei Wang — Principal Data Scientist working on computer vision, perception, and real-time machine learning. Personal bio and study notes.">
-    <meta name="theme-color" content="#f7f6f2">
+    <meta name="theme-color" content="#111111">
     <title>Wei Wang — Computer Vision &amp; Notes</title>
     <link rel="stylesheet" href="assets/style.css">
   </head>
@@ -12,50 +12,39 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="site-shell">
       <header class="site-header">
-        <a class="wordmark" href="./" aria-label="Wei Wang home">WW<span aria-hidden="true">.</span></a>
-        <nav aria-label="Main navigation">
-          <a href="#about">About</a>
-          <a href="#blogs">Blogs</a>
+        <nav class="profile-links" aria-label="Professional profiles">
+          <a href="https://github.com/chriswakupe">GitHub <span aria-hidden="true">↗</span></a>
+          <a href="https://scholar.google.com/citations?hl=en&amp;user=CT2OuzMAAAAJ">Google Scholar <span aria-hidden="true">↗</span></a>
+          <a href="https://www.linkedin.com/in/wei-wang-ba0b4054/">LinkedIn <span aria-hidden="true">↗</span></a>
+        </nav>
+        <nav class="site-nav" aria-label="Main navigation">
+          <a class="nav-link" href="#about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg><span>About</span></a>
+          <a class="nav-link" href="#blogs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Blogs</span></a>
         </nav>
       </header>
-
       <main id="main">
         <section class="about-section" id="about" aria-labelledby="about-title">
-          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Computer vision · Machine learning</p>
-          <h1 class="intro" id="about-title">Building systems that see<br class="desktop-break"> and understand the world.</h1>
-          <div class="bio">
-            <p>I'm a Principal Data Scientist at Walmart / Sam's Club, working on computer vision and real-time perception. I build models for detection, tracking, and scene understanding, and bring them from research into production on edge hardware.</p>
-            <p>I earned my PhD in Electrical &amp; Computer Engineering at UC Riverside. This is my space to share what I'm learning about computer vision and machine learning.</p>
-          </div>
-          <div class="profile-links" aria-label="Find me elsewhere">
-            <a href="https://github.com/chriswakupe">GitHub <span aria-hidden="true">↗</span></a>
-            <a href="https://scholar.google.com/citations?hl=en&amp;user=CT2OuzMAAAAJ">Google Scholar <span aria-hidden="true">↗</span></a>
-            <a href="https://www.linkedin.com/in/wei-wang-ba0b4054/">LinkedIn <span aria-hidden="true">↗</span></a>
+          <div class="vision-panel">
+            <div class="panel-top"><span class="panel-mark">W<span>W</span></span><span>01 / PERCEPTION</span></div>
+            <img class="vision-art" src="assets/vision.svg" alt="" width="480" height="520">
+            <div class="panel-bottom"><span class="panel-kicker">A WORLD WORTH UNDERSTANDING</span><h1 class="panel-title" id="about-title">COMPUTER<br>VISION<span class="accent">.</span></h1><p class="panel-bio">I'm a Principal Data Scientist at <strong>Walmart / Sam's Club</strong>, turning computer vision research into real-time systems. I hold a PhD from <strong>UC Riverside</strong> and share notes on vision and machine learning.</p></div>
           </div>
         </section>
-
         <section class="blogs-section" id="blogs" aria-labelledby="blogs-title">
           <div class="section-heading">
-            <h2 id="blogs-title">Blogs</h2>
-            <span class="section-note">A growing collection of notes</span>
+            <span class="heading-backdrop" aria-hidden="true">NOTES</span>
+            <p class="eyebrow">Ideas, experiments &amp; things learned</p>
+            <h2 id="blogs-title">The <span class="accent">blog.</span></h2>
           </div>
           <!-- Add another blog-entry link here when you create a new page. -->
           <a class="blog-entry" href="blogs/cv-study/">
-            <span class="entry-number" aria-hidden="true">01</span>
-            <span class="entry-content">
-              <span class="entry-category">Computer vision</span>
-              <span class="entry-title">CV Study</span>
-            </span>
-            <span class="entry-status">Coming soon</span>
+            <span class="entry-art" aria-hidden="true"><span class="viewfinder"></span><span class="entry-monogram">CV<span>.</span></span><span class="entry-index">STUDY / 001</span></span>
+            <span class="entry-content"><span class="entry-category">Computer vision</span><span class="entry-title">CV Study</span><span class="entry-status"><span aria-hidden="true"></span> Coming soon</span></span>
             <span class="entry-arrow" aria-hidden="true">↗</span>
           </a>
         </section>
       </main>
-
-      <footer class="site-footer">
-        <span>© Wei Wang</span>
-        <span>Learning, building, sharing.</span>
-      </footer>
+      <footer class="site-footer"><span>© Wei Wang</span><span>Learning, building, sharing<span class="accent">.</span></span></footer>
     </div>
   </body>
 </html>
