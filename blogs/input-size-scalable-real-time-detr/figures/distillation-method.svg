@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 480" role="img" aria-labelledby="title desc">
+<title id="title">Stage A: backbone pre-distillation</title>
+<desc id="desc">A frozen DINOv3 ConvNeXt-B teacher and a trainable MobileNetV4-Hybrid-M student see the same unlabeled 512 by 512 image. Projector P16 maps the student's stride-16 features from 160 to 512 channels and is compared with the per-channel standardized teacher stride-16 features (loss_16, weight 0.5). Projector P32 maps the student's stride-32 features from 960 to 1024 channels and is compared with the teacher's normalized stride-32 features (loss_32, weight 1.0). The P16 output also passes through the frozen teacher stage 3 and is compared with the teacher's stride-32 features (loss_16r, weight 0.5). Every loss is 2 minus 2 times cosine similarity per position.</desc>
+<defs>
+<linearGradient id="hot" x2="1" y2="1"><stop stop-color="#382b16"/><stop offset="1" stop-color="#211e18"/></linearGradient>
+<marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#929292"/></marker>
+<marker id="arrow-gold" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#ffbf47"/></marker>
+</defs>
+<style>text{font-family:system-ui,sans-serif;fill:#eee;font-size:15px}.muted{fill:#aaa;font-size:12px}.gold{fill:#ffbf47}.blue{fill:#9cc0ff}.flow{fill:none;stroke:#929292;stroke-width:1.5;marker-end:url(#arrow)}.grad{fill:none;stroke:#ffbf47;stroke-width:1.5;marker-end:url(#arrow-gold)}.card{fill:#222;stroke:#3a3a3a}.student{fill:url(#hot);stroke:#ffbf47}.loss{fill:#1c2533;stroke:#7da9f5}</style>
+<rect width="790" height="480" rx="14" fill="#191919"/>
+<text x="22" y="30" class="muted" letter-spacing="2">STAGE A · BACKBONE PRE-DISTILLATION</text>
+<text x="768" y="30" text-anchor="end" class="muted">COCO train2017 + unlabeled2017 · no labels</text>
+
+<text x="150" y="60" class="muted" letter-spacing="1">TEACHER · DINOv3 ConvNeXt-B · frozen</text>
+<rect class="card" x="150" y="70" width="140" height="58" rx="10"/>
+<text x="166" y="96">Stages 0–1</text><text x="166" y="116" class="muted">/4 → /8</text>
+<rect class="card" x="320" y="70" width="160" height="58" rx="10"/>
+<text x="336" y="96">Stage 2 · T/16</text><text x="336" y="116" class="muted">512 ch</text>
+<rect class="card" x="520" y="70" width="248" height="58" rx="10"/>
+<text x="536" y="96">Stage 3 + final norm · T/32</text><text x="536" y="116" class="muted">1024 ch</text>
+<path class="flow" d="M290 99 H316"/><path class="flow" d="M480 99 H516"/>
+
+<rect class="card" x="20" y="200" width="104" height="72" rx="10"/>
+<text x="34" y="226">Image</text><text x="34" y="246" class="muted">512 × 512</text><text x="34" y="263" class="muted">crop, flip, jitter</text>
+<path class="flow" d="M124 222 H137 V99 H146"/><path class="flow" d="M124 250 H137 V362 H146"/>
+
+<rect class="card" x="340" y="148" width="120" height="36" rx="8"/>
+<text x="400" y="171" text-anchor="middle" style="font-size:13px">Standardize</text>
+<path class="flow" d="M400 128 V144"/>
+<rect class="loss" x="335" y="206" width="130" height="40" rx="20"/>
+<text x="400" y="225" text-anchor="middle" class="blue" style="font-size:14px">loss_16</text><text x="400" y="240" text-anchor="middle" class="muted" style="font-size:11px">w 0.5</text>
+<path class="flow" d="M400 184 V202"/>
+<rect class="student" x="340" y="268" width="120" height="36" rx="8"/>
+<text x="400" y="291" text-anchor="middle" style="font-size:13px">P16 · 160→512</text>
+<path class="grad" d="M400 268 V250"/>
+
+<rect class="card" x="520" y="268" width="112" height="36" rx="8" stroke-dasharray="4 3"/>
+<text x="576" y="291" text-anchor="middle" style="font-size:13px">Teacher stage 3</text>
+<path class="grad" d="M460 286 H516"/>
+<rect class="loss" x="520" y="206" width="112" height="40" rx="20"/>
+<text x="576" y="225" text-anchor="middle" class="blue" style="font-size:14px">loss_16r</text><text x="576" y="240" text-anchor="middle" class="muted" style="font-size:11px">w 0.5</text>
+<path class="grad" d="M576 268 V250"/><path class="flow" d="M576 128 V202"/>
+
+<rect class="student" x="652" y="268" width="116" height="36" rx="8"/>
+<text x="710" y="291" text-anchor="middle" style="font-size:13px">P32 · 960→1024</text>
+<rect class="loss" x="652" y="206" width="116" height="40" rx="20"/>
+<text x="710" y="225" text-anchor="middle" class="blue" style="font-size:14px">loss_32</text><text x="710" y="240" text-anchor="middle" class="muted" style="font-size:11px">w 1.0</text>
+<path class="grad" d="M710 268 V250"/><path class="flow" d="M710 128 V202"/>
+
+<rect class="student" x="150" y="334" width="140" height="58" rx="10"/>
+<text x="166" y="360">Stem → /8</text><text x="166" y="380" class="muted">80 ch at /8</text>
+<rect class="student" x="320" y="334" width="160" height="58" rx="10"/>
+<text x="336" y="360">S/16</text><text x="336" y="380" class="muted">160 ch · attention</text>
+<rect class="student" x="520" y="334" width="248" height="58" rx="10"/>
+<text x="536" y="360">S/32</text><text x="536" y="380" class="muted">960 ch</text>
+<path class="flow" d="M290 363 H316"/><path class="flow" d="M480 363 H516"/>
+<path class="grad" d="M400 334 V308"/><path class="grad" d="M710 334 V308"/>
+<text x="150" y="414" class="gold" style="font-size:12px" letter-spacing="1">STUDENT · MobileNetV4-Hybrid-M · trained</text>
+
+<line x1="22" y1="436" x2="768" y2="436" stroke="#333"/>
+<rect x="22" y="452" width="14" height="10" rx="2" class="student"/><text x="42" y="462" class="muted">Trained (student, projectors)</text>
+<rect x="232" y="452" width="14" height="10" rx="2" class="card"/><text x="252" y="462" class="muted">Frozen teacher</text>
+<rect x="362" y="452" width="14" height="10" rx="5" class="loss"/><text x="382" y="462" class="muted">Each loss: 2 − 2·cos per position</text>
+<text x="768" y="462" text-anchor="end" class="muted">Projectors discarded after Stage A</text>
+</svg>

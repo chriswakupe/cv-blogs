@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Toward an Input-Size-Scalable Real-Time DETR — Wei Wang</title><style>
+:root{color-scheme:dark;--bg:#111;--text:#ededed;--muted:#b6b6b6;--accent:#ffb400}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.85 system-ui,-apple-system,sans-serif}main,header,footer{max-width:900px;margin:auto;padding:28px}header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;border-bottom:1px solid #333;font-size:13px}a{color:var(--accent);text-underline-offset:4px}a:focus-visible,.table-wrap:focus-visible{outline:2px solid var(--accent);outline-offset:5px}.draft{color:var(--muted);letter-spacing:.09em;text-transform:uppercase}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.12;letter-spacing:-.045em;margin:24px 0}h2{font-size:1.75rem;line-height:1.3;margin:60px 0 18px;letter-spacing:-.025em}h3{font-size:1.2rem;line-height:1.45;margin:38px 0 14px}p,li{color:#c9c9c9}strong{color:var(--text)}code{overflow-wrap:anywhere;font-size:.85em;background:#252525;border-radius:4px;padding:2px 5px}table{width:100%;border-collapse:collapse;min-width:620px;font-size:14px;line-height:1.6}td,th{padding:12px;border-bottom:1px solid #353535;vertical-align:top;text-align:left}th{color:var(--accent);background:#202020}.table-wrap{overflow-x:auto;margin:24px 0;border:1px solid #333;border-radius:10px}figure{margin:32px 0;padding:12px;background:#191919;border:1px solid #333;border-radius:12px}figure img{display:block;width:100%;height:auto}figcaption{padding:12px;color:var(--muted);font-size:13px;line-height:1.65}.fig-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0}.fig-row figure{margin:0}.summary{background:#1c1b16;border-left:3px solid var(--accent);padding:18px 24px;margin:28px 0}.summary p{margin:0}footer{border-top:1px solid #333;color:var(--muted);font-size:13px}li{margin-block:8px}@media(max-width:600px){main,header,footer{padding:20px}.fig-row{grid-template-columns:1fr}body{font-size:16px}figure{padding:3px}h2{margin-top:42px}.summary{padding:16px}}@media print{body{background:#fff;color:#111}p,li,strong{color:#111}a{color:#543800}.draft{color:#555}figure{break-inside:avoid}header,footer{display:none}}
+</style></head><body><header><a href="../../#blogs">← Back to blogs</a><span class="draft">6 October 2026</span></header><main><h1 id="toward-an-input-size-scalable-real-time-detr">Toward an Input-Size-Scalable Real-Time DETR</h1>
+<p><em>Work in progress: the e29 detection run is still training, and the results will be updated when it finishes.</em></p>
+<h2 id="the-high-resolution-cost-of-recent-real-time-backbones">The high-resolution cost of recent real-time backbones</h2>
+<p><a href="https://github.com/roboflow/rf-detr/blob/develop/src/rfdetr/models/backbone/dinov2_with_windowed_attn.py">RF-DETR</a> and <a href="https://github.com/Intellindust-AI-Lab/DEIMv2">DEIMv2-M</a> use ViT backbones; <a href="https://arxiv.org/html/2609.26590v1">GTR</a> uses gated linear attention. <a href="https://github.com/RT-DETRs/RT-DETRv4">RT-DETRv4-M</a> uses the hierarchical CNN HGNetv2-B2. How much does the backbone cost at high resolution?</p>
+<p><strong>1536 × 876 · Batch size 8 · NVIDIA RTX 4090 · Backbone-only latency</strong></p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable data table"><table>
+<thead>
+<tr>
+<th>Backbone</th>
+<th style="text-align: right;">Latency (ms)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HGNetv2-B2 (RT-DETRv4-M)</td>
+<td style="text-align: right;"><strong>7.7</strong></td>
+<td>CNN</td>
+</tr>
+<tr>
+<td>GTR-M</td>
+<td style="text-align: right;">17.06</td>
+<td>Gated linear attention plugin; optimization level 5</td>
+</tr>
+<tr>
+<td>ViT-Tiny+ (DEIMv2-M)</td>
+<td style="text-align: right;">20.87</td>
+<td>ViT</td>
+</tr>
+<tr>
+<td>DINOv3-S/16</td>
+<td style="text-align: right;">31.12</td>
+<td>ViT</td>
+</tr>
+</tbody>
+</table></div>
+<p>HGNetv2-B2 has the lowest latency in this comparison, motivating a lightweight hierarchical backbone. A multi-resolution sweep is still needed to establish scaling.</p>
+<details>
+<summary>Benchmark notes</summary>
+<p>Precision, runtime/version, timing procedure, and whether milliseconds are per batch or per image remain to be confirmed. These timings exclude the detector encoder and decoder.</p>
+</details>
+
+<h2 id="where-rt-detrv4-m-spends-its-time">Where RT-DETRv4-M spends its time</h2>
+<p>We use RT-DETRv4-M as our CNN baseline and profile the full detector at the same <strong>1536 × 876, batch size 8, on RTX 4090</strong>.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable data table"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th style="text-align: right;">Profiled ms</th>
+<th style="text-align: right;">Share</th>
+<th>Main cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Backbone: HGNetv2-B2</strong></td>
+<td style="text-align: right;"><strong>7.32</strong></td>
+<td style="text-align: right;"><strong>44%</strong></td>
+<td>Stem + /4: 3.51 ms; /16 stage: 2.18 ms</td>
+</tr>
+<tr>
+<td>AIFI + /32 input projection + misc.</td>
+<td style="text-align: right;">0.53</td>
+<td style="text-align: right;">3%</td>
+<td>Small share of the total</td>
+</tr>
+<tr>
+<td><strong>Neck: FPN + PAN</strong></td>
+<td style="text-align: right;"><strong>~6.0</strong></td>
+<td style="text-align: right;"><strong>36%</strong></td>
+<td>High-resolution feature fusion</td>
+</tr>
+<tr>
+<td>↳ /8 top-down block (<code>fpn_blocks.1</code>)</td>
+<td style="text-align: right;">3.10</td>
+<td style="text-align: right;">19%</td>
+<td>Largest individual module; included in neck</td>
+</tr>
+<tr>
+<td>Decoder + query selection/top-k</td>
+<td style="text-align: right;">~2.73</td>
+<td style="text-align: right;">16%</td>
+<td>Query selection scans /8, /16 and /32 features</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>16.61</strong></td>
+<td style="text-align: right;"><strong>100%</strong></td>
+<td><strong>~16 ms</strong> without profiling</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>Timings and shares are rounded; the indented row is part of the neck total. The 7.32 ms backbone profile is a separate measurement from the 7.7 ms backbone benchmark above.</em></p>
+<h3 id="the-f8-bottleneck">The F/8 bottleneck</h3>
+<figure style="max-width: 580px; margin: 24px auto;">
+<img src="figures/fpn-bottleneck.svg" alt="FPN grids grow from 48 × 27 at F/32 to 96 × 54 at F/16 and 192 × 108 at F/8. F/8 fusion uses four times the compute of F/16." loading="lazy">
+<figcaption>Grid sizes from the 1536 × 864 reference profile; the input height stated above still needs confirmation. Projections and PAN omitted.</figcaption>
+</figure>
+
+<p><strong>F/8 is the compute bottleneck:</strong> its larger grid has <strong>4× as many positions as F/16</strong>, so the same fusion block costs <strong>~500 vs. ~125 GFLOP</strong>.</p>
+<h2 id="hypothesis-and-measurement">Hypothesis and measurement</h2>
+<p>Can stronger backbone features reduce the need for an expensive neck? We test two hypotheses:</p>
+<ol>
+<li><strong>Distill from a convolutional teacher.</strong> DINOv3 ConvNeXt-B may provide better spatially matched supervision for a hierarchical backbone such as MobileNetV4-Hybrid-M.</li>
+<li><strong>Make the neck thinner.</strong> Stronger features may let us reduce FPN/PAN width from <strong>256 to 192</strong>, preserving detection quality while lowering F/8 compute.</li>
+</ol>
+<h3 id="why-mobilenetv4">Why MobileNetV4?</h3>
+<ul>
+<li><strong>Efficient at high resolution.</strong> Our measurements favor a hierarchical CNN backbone at the tested resolution, motivating MobileNetV4 as a candidate for input-size scaling.</li>
+<li><strong>A natural ConvNeXt student.</strong> MobileNetV4's <strong>Universal Inverted Bottleneck (UIB)</strong> generalizes inverted-bottleneck and ConvNeXt-style blocks. This structural overlap makes it a promising candidate for distillation from DINOv3 ConvNeXt; whether it transfers better remains a hypothesis. <a href="https://arxiv.org/abs/2404.10518">MobileNetV4 paper</a>.</li>
+</ul>
+<h3 id="full-detector-latency">Full-detector latency</h3>
+<p><strong>RTX 4090 · Batch size 8.</strong> Latency is per batch; FPS is image throughput (<code>8 × 1000 / latency</code>).</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable data table"><table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Latency (ms)</th>
+<th style="text-align: right;">FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MNv4-H0f + width 192 (COCO run)</strong></td>
+<td style="text-align: right;"><strong>13.4–13.5</strong></td>
+<td style="text-align: right;"><strong>~595</strong></td>
+</tr>
+<tr>
+<td>RT-DETRv4-M (HGNetv2-B2), random-weight export</td>
+<td style="text-align: right;">15.9–16.1</td>
+<td style="text-align: right;">~500</td>
+</tr>
+</tbody>
+</table></div>
+<p>The combined backbone and neck change reduces latency by <strong>about 16%</strong>. These timings measure speed; detection results below assess accuracy.</p>
+<h2 id="experiments-on-coco">Experiments on COCO</h2>
+<p>Four detection runs test whether a pre-distilled MobileNetV4 backbone can replace HGNetv2-B2 while the neck narrows from 256 to 192 channels. The two pre-distilled runs differ only in how long the backbone was pre-distilled.</p>
+<h3 id="four-configurations">Four configurations</h3>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable data table"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Experiment</th>
+<th>Backbone initialization</th>
+<th style="text-align: right;">FPN width</th>
+<th>Detection-stage distillation weight</th>
+<th style="text-align: right;">Params</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Baseline: RT-DETRv4-M</strong></td>
+<td>HGNetv2-B2, stock RT-DETRv4 recipe</td>
+<td style="text-align: right;">256</td>
+<td>GAM, uncapped (upstream)</td>
+<td style="text-align: right;">19.79 M</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Replace backbone, no distillation</td>
+<td>MobileNetV4-Hybrid-M, ImageNet-12k weights</td>
+<td style="text-align: right;">192</td>
+<td>GAM, uncapped</td>
+<td style="text-align: right;">18.96 M</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Distillation, epoch-6 checkpoint (<code>e06</code>)</td>
+<td>MobileNetV4-Hybrid-M after 7 epochs of ConvNeXt-B pre-distillation</td>
+<td style="text-align: right;">192</td>
+<td>GAM, capped at 15</td>
+<td style="text-align: right;">18.96 M</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Distillation, epoch-29 checkpoint (<code>e29</code>)</td>
+<td>MobileNetV4-Hybrid-M after 30 epochs of ConvNeXt-B pre-distillation</td>
+<td style="text-align: right;">192</td>
+<td>GAM, capped at 15</td>
+<td style="text-align: right;">18.96 M</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="notes">Notes</h3>
+<ol>
+<li><strong>Backbone pre-distillation data.</strong> Runs 3 and 4 pre-distill on COCO train2017 plus unlabeled2017 (241,690 images); labels are not used.</li>
+<li><strong>GAM does not directly fit MobileNetV4.</strong> RT-DETRv4 sets its detection-stage distillation weight with Gradient-guided Adaptive Modulation (GAM), which has no upper bound. It is stable for HGNetv2, but with MobileNetV4 (run 2) the weighted distillation loss grew from 2.1 to 2,557 in 9 epochs, and AP fell after epoch 3. Runs 3 and 4 therefore cap the weight at 15. <a href="https://arxiv.org/abs/2510.25257">RT-DETRv4 paper</a>.</li>
+<li><strong>GAM has a multi-GPU issue.</strong> GAM updates the weight only on rank 0; the other ranks keep the default. With DDP gradient averaging, the effective weight depends on the GPU count: on my two GPUs, (15 + 5) / 2 = 10. <a href="https://github.com/RT-DETRs/RT-DETRv4/issues/45">RT-DETRv4 issue #45</a>.</li>
+</ol>
+<h2 id="results-on-coco-val2017">Results on COCO val2017</h2>
+<div class="fig-row">
+<figure><img src="figures/detection-ap.svg" alt="Overall AP by detection epoch for the four runs. At epoch 63, e29 reaches 52.35 AP versus 52.65 for the baseline." loading="lazy"><figcaption>Overall AP. Run 2 stops at epoch 8 and run 3 at epoch 20; the e29 snapshot ends at epoch 63.</figcaption></figure>
+<figure><img src="figures/detection-ap-small.svg" alt="Small-object AP by detection epoch. At epoch 63, e29 reaches 34.70 versus 34.08 for the baseline." loading="lazy"><figcaption>Small-object AP. Values come directly from the training logs, without smoothing or extrapolation.</figcaption></figure>
+</div>
+<h3 id="conclusion">Conclusion</h3>
+<p>The pre-distilled MobileNetV4 detector nearly ties RT-DETRv4-M on COCO: at epoch 63, it reaches <strong>52.35 AP</strong> versus <strong>52.65 AP</strong> for the baseline, with 4% fewer parameters and about 16% lower latency. Small objects are the strongest result: <strong>34.70 vs. 34.08 AP<sub>S</sub></strong>, even though MobileNetV4's stride-8 feature map has only <strong>80 channels</strong>, versus 384 in HGNetv2-B2.</p>
+<p>It is also ahead of RF-DETR on small objects at the same size. In RF-DETR's design ablation, the medium model with the DINOv2 backbone reaches <strong>34.3 AP<sub>S</sub></strong>. The next step, to 35.8 AP<sub>S</sub>, comes from additional Objects365 pretraining. That 34.3 already includes 60 epochs of Objects365 pretraining, while our detector uses none. <a href="https://arxiv.org/html/2511.09554v2">RF-DETR paper, Tables 5 and 6</a>.</p>
+<h2 id="appendix-distillation-method">Appendix: distillation method</h2>
+<figure><img src="figures/distillation-method.svg" alt="Stage A diagram. A frozen DINOv3 ConvNeXt-B teacher and a trainable MobileNetV4-Hybrid-M student see the same image. Projectors P16 and P32 map student features to teacher widths for three cosine losses: loss_16, loss_32, and loss_16r through a frozen teacher stage." loading="lazy"><figcaption>Gold blocks are trained; gray blocks are frozen.</figcaption></figure>
+<p>A frozen DINOv3 ConvNeXt-B teacher distills MobileNetV4-Hybrid-M on unlabeled COCO images. In <a href="https://arxiv.org/abs/2411.06786">ScaleKD</a> terms, the loss has two parts:</p>
+<ul>
+<li><strong>Feature mimicking</strong> (<code>loss_16</code>, <code>loss_32</code>): projected student features match the teacher's /16 features (standardized per channel) and /32 features.</li>
+<li><strong>Teacher parameter perception</strong> (<code>loss_16r</code>): projected student /16 features pass through the frozen teacher stage 3 and must reproduce the teacher's /32 features.</li>
+</ul>
+<p>Each term is 2 − 2·cos per position, with weights 0.5, 1.0 and 0.5. The projectors are discarded after pre-distillation.</p>
+</main><footer>Computer Vision Research Notes</footer></body></html>

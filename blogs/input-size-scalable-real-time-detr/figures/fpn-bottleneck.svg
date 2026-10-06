@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 380" role="img" aria-labelledby="title desc">
+<title id="title">F/8: larger grid, higher fusion cost</title>
+<desc id="desc">Simplified top-down FPN for the reference profile at 1536 by 864. F/32 has a 48 by 27 grid. Upsampling and fusion at F/16 operate on 96 by 54 positions, costing about 125 GFLOP. F/8 has 192 by 108 positions, four times as many, and costs about 500 GFLOP and 3.10 profiled milliseconds.</desc>
+<defs>
+<linearGradient id="hot" x2="1" y2="1"><stop stop-color="#382b16"/><stop offset="1" stop-color="#211e18"/></linearGradient>
+<pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M8 0 H0 V8" fill="none" stroke="#ffbf47" stroke-opacity=".45" stroke-width=".7"/></pattern>
+<marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L8 4 L0 8" fill="#929292"/></marker>
+</defs>
+<style>text{font-family:system-ui,sans-serif;fill:#eee;font-size:17px}.muted{fill:#aaa;font-size:13px}.gold{fill:#ffbf47}.flow{fill:none;stroke:#929292;stroke-width:1.5;marker-end:url(#arrow)}.card{fill:#222;stroke:#3a3a3a}</style>
+<rect width="560" height="380" rx="14" fill="#191919"/>
+<text x="22" y="28" class="muted" letter-spacing="2">TOP-DOWN FPN</text><text x="538" y="28" text-anchor="end" class="muted">GRID · W × H</text>
+<rect class="card" x="148" y="47" width="390" height="65" rx="10"/>
+<text x="166" y="74">F/32 · AIFI</text><text x="166" y="96" class="muted">Coarse features</text>
+<rect x="406" y="64" width="32" height="18" fill="url(#grid)" stroke="#9b824c"/><text x="526" y="100" text-anchor="end" class="muted">48 × 27</text>
+<path class="flow" d="M265 112 V148"/><text x="282" y="135" class="muted">↑ 2× + concat</text>
+<text x="22" y="184">F/16</text><path class="flow" d="M80 179 H143"/>
+<rect class="card" x="148" y="153" width="390" height="72" rx="10"/>
+<text x="166" y="181">F/16 fusion</text><text x="166" y="205" class="muted">~125 GFLOP</text>
+<rect x="406" y="166" width="64" height="36" fill="url(#grid)" stroke="#9b824c"/><text x="526" y="214" text-anchor="end" class="muted">96 × 54</text>
+<path class="flow" d="M265 225 V261"/><text x="282" y="248" class="muted">↑ 2× + concat</text>
+<text x="22" y="300" class="gold">F/8</text><path class="flow" d="M80 295 H143"/>
+<rect x="148" y="266" width="390" height="94" rx="10" fill="url(#hot)" stroke="#ffbf47"/>
+<text x="166" y="292" class="gold" font-weight="600">F/8 bottleneck</text><text x="166" y="317">~500 GFLOP · 3.10 ms</text><text x="166" y="342" class="gold" style="font-size:13px">4× positions → 4× compute</text>
+<rect x="398" y="271" width="128" height="72" fill="url(#grid)" stroke="#ffbf47"/><text x="526" y="355" text-anchor="end" class="muted">192 × 108</text>
+</svg>
