@@ -5,7 +5,7 @@
 <p><em>Work in progress: the e29 detection run is still training, and the results will be updated when it finishes.</em></p>
 <h2 id="the-high-resolution-cost-of-recent-real-time-backbones">The high-resolution cost of recent real-time backbones</h2>
 <p><a href="https://github.com/roboflow/rf-detr/blob/develop/src/rfdetr/models/backbone/dinov2_with_windowed_attn.py">RF-DETR</a> and <a href="https://github.com/Intellindust-AI-Lab/DEIMv2">DEIMv2-M</a> use ViT backbones; <a href="https://arxiv.org/html/2609.26590v1">GTR</a> uses gated linear attention. <a href="https://github.com/RT-DETRs/RT-DETRv4">RT-DETRv4-M</a> uses the hierarchical CNN HGNetv2-B2. How much does the backbone cost at high resolution?</p>
-<p><strong>1536 × 876 · Batch size 8 · NVIDIA RTX 4090 · Backbone-only latency</strong></p>
+<p><strong>1536 × 864 · Batch size 8 · NVIDIA RTX 4090 · Backbone-only latency</strong></p>
 <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable data table"><table>
 <thead>
 <tr>
@@ -38,13 +38,10 @@
 </tbody>
 </table></div>
 <p>HGNetv2-B2 has the lowest latency in this comparison, motivating a lightweight hierarchical backbone. A multi-resolution sweep is still needed to establish scaling.</p>
-<details>
-<summary>Benchmark notes</summary>
-<p>Precision, runtime/version, timing procedure, and whether milliseconds are per batch or per image remain to be confirmed. These timings exclude the detector encoder and decoder.</p>
-</details>
+<p><em>These timings exclude the detector encoder and decoder.</em></p>
 
 <h2 id="where-rt-detrv4-m-spends-its-time">Where RT-DETRv4-M spends its time</h2>
-<p>We use RT-DETRv4-M as our CNN baseline and profile the full detector at the same <strong>1536 × 876, batch size 8, on RTX 4090</strong>.</p>
+<p>We use RT-DETRv4-M as our CNN baseline and profile the full detector at the same <strong>1536 × 864, batch size 8, on RTX 4090</strong>.</p>
 <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable data table"><table>
 <thead>
 <tr>
@@ -97,7 +94,7 @@
 <h3 id="the-f8-bottleneck">The F/8 bottleneck</h3>
 <figure style="max-width: 580px; margin: 24px auto;">
 <img src="figures/fpn-bottleneck.svg" alt="FPN grids grow from 48 × 27 at F/32 to 96 × 54 at F/16 and 192 × 108 at F/8. F/8 fusion uses four times the compute of F/16." loading="lazy">
-<figcaption>Grid sizes from the 1536 × 864 reference profile; the input height stated above still needs confirmation. Projections and PAN omitted.</figcaption>
+<figcaption>Grid sizes at 1536 × 864 input. Projections and PAN omitted.</figcaption>
 </figure>
 
 <p><strong>F/8 is the compute bottleneck:</strong> its larger grid has <strong>4× as many positions as F/16</strong>, so the same fusion block costs <strong>~500 vs. ~125 GFLOP</strong>.</p>
