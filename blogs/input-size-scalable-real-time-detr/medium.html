@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="canonical" href="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/"><title>Toward an Input-Size-Scalable Real-Time DETR</title>
+<style>body{max-width:760px;margin:auto;padding:24px 16px;font:18px/1.7 Georgia,serif;color:#222;background:#fff}img{max-width:100%;height:auto}figure{margin:28px 0}figcaption{color:#666;font-size:14px}</style></head>
+<body><article>
+<h1>Toward an Input-Size-Scalable Real-Time DETR</h1>
+<p>Real-time DETRs are usually designed and benchmarked at 640 × 640. But detecting small objects often calls for high-resolution input. <strong>What if the input is 1536 × 864—can we do better than existing state-of-the-art real-time DETRs?</strong> This study looks for a DETR that keeps latency low at high resolution, by pairing a lightweight hierarchical backbone and a thinner neck with distillation from a vision foundation model.</p>
+<h2>The high-resolution cost of recent real-time backbones</h2>
+<p><a href="https://github.com/roboflow/rf-detr/blob/develop/src/rfdetr/models/backbone/dinov2_with_windowed_attn.py">RF-DETR</a> and <a href="https://github.com/Intellindust-AI-Lab/DEIMv2">DEIMv2-M</a> use ViT backbones; <a href="https://arxiv.org/html/2609.26590v1">GTR</a> uses gated linear attention. <a href="https://github.com/RT-DETRs/RT-DETRv4">RT-DETRv4-M</a> uses the hierarchical CNN HGNetv2-B2. How much does the backbone cost at high resolution?</p>
+<p><strong>1536 × 864 · Batch size 8 · NVIDIA RTX 4090 · Backbone-only latency</strong></p>
+<figure><img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/backbone-latency.png" alt="Backbone-only latency at 1536 × 864, batch size 8, RTX 4090: HGNetv2-B2 7.7 ms, GTR-M 17.06 ms, ViT-Tiny+ 20.87 ms, DINOv3-S/16 31.12 ms."></figure>
+<p>HGNetv2-B2 has the lowest latency in this comparison, motivating a lightweight hierarchical backbone. A multi-resolution sweep is still needed to establish scaling.</p>
+<p><em>These timings exclude the detector encoder and decoder.</em></p>
+
+<h2>Where RT-DETRv4-M spends its time</h2>
+<p>We use RT-DETRv4-M as our CNN baseline and profile the full detector at the same <strong>1536 × 864, batch size 8, on RTX 4090</strong>.</p>
+<figure><img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/detector-profile.png" alt="RT-DETRv4-M profile at 1536 × 864: backbone 7.32 ms (44%), neck ~6.0 ms (36%) including the /8 top-down block at 3.10 ms, decoder ~2.73 ms (16%), total 16.61 ms."></figure>
+<p><em>Timings and shares are rounded; the indented row is part of the neck total. The 7.32 ms backbone profile is a separate measurement from the 7.7 ms backbone benchmark above.</em></p>
+<h3>The F/8 bottleneck</h3>
+<figure>
+<img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/fpn-bottleneck.png" alt="FPN grids grow from 48 × 27 at F/32 to 96 × 54 at F/16 and 192 × 108 at F/8. F/8 fusion uses four times the compute of F/16.">
+<figcaption>Grid sizes at 1536 × 864 input. Projections and PAN omitted.</figcaption>
+</figure>
+
+<p><strong>F/8 is the compute bottleneck:</strong> its larger grid has <strong>4× as many positions as F/16</strong>, so the same fusion block costs <strong>~500 vs. ~125 GFLOP</strong>.</p>
+<h2>Hypothesis and measurement</h2>
+<p>Can stronger backbone features reduce the need for an expensive neck? We test two hypotheses:</p>
+<ol>
+<li><strong>Distill from a convolutional teacher.</strong> DINOv3 ConvNeXt-B may provide better spatially matched supervision for a hierarchical backbone such as MobileNetV4-Hybrid-M.</li>
+<li><strong>Make the neck thinner.</strong> Stronger features may let us reduce FPN/PAN width from <strong>256 to 192</strong>, preserving detection quality while lowering F/8 compute.</li>
+</ol>
+<h3>Why MobileNetV4?</h3>
+<ul>
+<li><strong>Efficient at high resolution.</strong> Our measurements favor a hierarchical CNN backbone at the tested resolution, motivating MobileNetV4 as a candidate for input-size scaling.</li>
+<li><strong>A natural ConvNeXt student.</strong> MobileNetV4's <strong>Universal Inverted Bottleneck (UIB)</strong> generalizes inverted-bottleneck and ConvNeXt-style blocks. This structural overlap makes it a promising candidate for distillation from DINOv3 ConvNeXt; whether it transfers better remains a hypothesis. <a href="https://arxiv.org/abs/2404.10518">MobileNetV4 paper</a>.</li>
+</ul>
+<h3>Full-detector latency</h3>
+<p><strong>RTX 4090 · Batch size 8.</strong> Latency is per batch; FPS is image throughput (<code>8 × 1000 / latency</code>).</p>
+<figure><img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/full-detector-latency.png" alt="Full-detector latency, batch size 8, RTX 4090: MNv4-H0f with width 192 at 13.4–13.5 ms (~595 FPS) versus RT-DETRv4-M at 15.9–16.1 ms (~500 FPS)."></figure>
+<p>The combined backbone and neck change reduces latency by <strong>about 16%</strong>. These timings measure speed; detection results below assess accuracy.</p>
+<h2>Experiments on COCO</h2>
+<p>Four detection runs test whether a pre-distilled MobileNetV4 backbone can replace HGNetv2-B2 while the neck narrows from 256 to 192 channels. The two pre-distilled runs differ only in how long the backbone was pre-distilled.</p>
+<h3>Four configurations</h3>
+<figure><img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/configurations.png" alt="Four configurations: baseline RT-DETRv4-M; MobileNetV4 without distillation; MobileNetV4 distilled for 7 epochs (e06); MobileNetV4 distilled for 30 epochs (e29)."></figure>
+<h3>Notes</h3>
+<ol>
+<li><strong>Backbone pre-distillation data.</strong> Runs 3 and 4 pre-distill on COCO train2017 plus unlabeled2017 (241,690 images); labels are not used.</li>
+<li><strong>GAM does not directly fit MobileNetV4.</strong> RT-DETRv4 sets its detection-stage distillation weight with Gradient-guided Adaptive Modulation (GAM), which has no upper bound. It is stable for HGNetv2, but with MobileNetV4 (run 2) the weighted distillation loss grew from 2.1 to 2,557 in 9 epochs, and AP fell after epoch 3. Runs 3 and 4 therefore cap the weight at 15. <a href="https://arxiv.org/abs/2510.25257">RT-DETRv4 paper</a>.</li>
+<li><strong>GAM has a multi-GPU issue.</strong> GAM updates the weight only on rank 0; the other ranks keep the default. With DDP gradient averaging, the effective weight depends on the GPU count: on my two GPUs, (15 + 5) / 2 = 10. <a href="https://github.com/RT-DETRs/RT-DETRv4/issues/45">RT-DETRv4 issue #45</a>.</li>
+</ol>
+<h2>Results on COCO val2017</h2>
+<figure><img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/detection-ap.png" alt="Overall AP by detection epoch for the four runs. At epoch 63, e29 reaches 52.35 AP versus 52.65 for the baseline."><figcaption>Overall AP. Run 2 stops at epoch 8 and run 3 at epoch 20; the e29 snapshot ends at epoch 63.</figcaption></figure>
+<figure><img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/detection-ap-small.png" alt="Small-object AP by detection epoch. At epoch 63, e29 reaches 34.70 versus 34.08 for the baseline."><figcaption>Small-object AP. Values come directly from the training logs, without smoothing or extrapolation.</figcaption></figure>
+<h3>Conclusion</h3>
+<p>The pre-distilled MobileNetV4 detector nearly ties RT-DETRv4-M on COCO: at epoch 63, it reaches <strong>52.35 AP</strong> versus <strong>52.65 AP</strong> for the baseline, with 4% fewer parameters and about 16% lower latency. Small objects are the strongest result: <strong>34.70 vs. 34.08 APs</strong>, even though MobileNetV4's stride-8 feature map has only <strong>80 channels</strong>, versus 384 in HGNetv2-B2.</p>
+<p>It is also ahead of RF-DETR on small objects at the same size. In RF-DETR's design ablation, the medium model with the DINOv2 backbone reaches <strong>34.3 APs</strong>. The next step, to 35.8 APs, comes from additional Objects365 pretraining. That 34.3 already includes 60 epochs of Objects365 pretraining, while our detector uses none. <a href="https://arxiv.org/html/2511.09554v2">RF-DETR paper, Tables 5 and 6</a>.</p>
+<p><strong>Future directions.</strong> Distillation still leaves a large gap to the teacher: after 30 epochs, the student's cosine similarity with the teacher is only about <strong>0.55 at F/16</strong> and <strong>0.82 at F/32</strong>. A backbone that can absorb more of the teacher's features could raise AP further. On the latency side, stronger backbone features may allow a simpler neck, cutting more of the F/8 fusion cost at high resolution.</p>
+<h2>Appendix: distillation method</h2>
+<figure><img src="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/medium/distillation-method.png" alt="Stage A diagram. A frozen DINOv3 ConvNeXt-B teacher and a trainable MobileNetV4-Hybrid-M student see the same image. Projectors P16 and P32 map student features to teacher widths for three cosine losses: loss_16, loss_32, and loss_16r through a frozen teacher stage."><figcaption>Gold blocks are trained; gray blocks are frozen.</figcaption></figure>
+<p>A frozen DINOv3 ConvNeXt-B teacher distills MobileNetV4-Hybrid-M on unlabeled COCO images. In <a href="https://arxiv.org/abs/2411.06786">ScaleKD</a> terms, the loss has two parts:</p>
+<ul>
+<li><strong>Feature mimicking</strong> (<code>loss_16</code>, <code>loss_32</code>): projected student features match the teacher's /16 features (standardized per channel) and /32 features.</li>
+<li><strong>Teacher parameter perception</strong> (<code>loss_16r</code>): projected student /16 features pass through the frozen teacher stage 3 and must reproduce the teacher's /32 features.</li>
+</ul>
+<p>Each term is 2 − 2·cos per position, with weights 0.5, 1.0 and 0.5. The projectors are discarded after pre-distillation.</p>
+<p><em>Originally published at <a href="https://chriswakupe.github.io/cv-blogs/blogs/input-size-scalable-real-time-detr/">chriswakupe.github.io</a>.</em></p>
+</article></body></html>
