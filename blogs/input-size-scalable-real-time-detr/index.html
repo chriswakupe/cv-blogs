@@ -190,63 +190,11 @@
 </ol>
 <h2 id="results-on-coco-val2017">Results on COCO val2017</h2>
 <div class="fig-row">
-<figure><img src="figures/detection-ap.svg" alt="Overall AP by detection epoch for the four runs. e29 peaks at epoch 69 with 52.78 AP, then plateaus slightly lower; the baseline keeps improving until its no-augmentation stage." loading="lazy"><figcaption>Overall AP. Run 2 stops at epoch 8 and run 3 at epoch 20; the e29 snapshot ends at epoch 86. The shaded band is the baseline's no-augmentation stage.</figcaption></figure>
-<figure><img src="figures/detection-ap-small.svg" alt="Small-object AP by detection epoch. At its best checkpoint, epoch 69, e29 reaches 34.94 AP-small; it stays above the baseline for most of the later epochs." loading="lazy"><figcaption>Small-object AP. Values come directly from the training logs, without smoothing or extrapolation.</figcaption></figure>
+<figure><img src="figures/detection-ap.svg" alt="Overall AP by detection epoch for the four runs. e29 peaks at epoch 69 with 52.78 AP, then plateaus slightly lower; the baseline keeps improving until its no-augmentation stage." loading="lazy"><figcaption><strong>Overall AP.</strong> e29 peaks at epoch 69 with 52.78 AP, within 0.5 AP of RT-DETRv4-M's final best (53.29 at epoch 92, after its no-augmentation stage, shaded). e29 saturates early, so a shorter schedule, as in <a href="https://arxiv.org/abs/2603.18739">EdgeCrafter</a>, may suit the distilled backbone.</figcaption></figure>
+<figure><img src="figures/detection-ap-small.svg" alt="Small-object AP by detection epoch. At its best checkpoint, epoch 69, e29 reaches 34.94 AP-small; it stays above the baseline for most of the later epochs." loading="lazy"><figcaption><strong>Small-object AP.</strong> At epoch 69, e29 reaches 34.94 AP<sub>S</sub>, 0.57 above RT-DETRv4-M's final best (34.37), with only 80 channels at stride 8.</figcaption></figure>
 </div>
-<h3 id="best-checkpoint-comparison">Best-checkpoint comparison</h3>
-<p>Each run's best checkpoint by AP, with the baseline restricted to the same epochs e29 has covered (0–86):</p>
-<div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable data table"><table>
-<thead>
-<tr>
-<th>Model</th>
-<th style="text-align: right;">Best epoch</th>
-<th style="text-align: right;">AP</th>
-<th style="text-align: right;">AP<sub>50</sub></th>
-<th style="text-align: right;">AP<sub>75</sub></th>
-<th style="text-align: right;">AP<sub>S</sub></th>
-<th style="text-align: right;">AP<sub>M</sub></th>
-<th style="text-align: right;">AP<sub>L</sub></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Baseline RT-DETRv4-M</td>
-<td style="text-align: right;">84</td>
-<td style="text-align: right;">53.03</td>
-<td style="text-align: right;">70.40</td>
-<td style="text-align: right;">57.77</td>
-<td style="text-align: right;">34.22</td>
-<td style="text-align: right;">57.09</td>
-<td style="text-align: right;">70.14</td>
-</tr>
-<tr>
-<td><strong>MobileNetV4, distilled e29</strong></td>
-<td style="text-align: right;">69</td>
-<td style="text-align: right;">52.78</td>
-<td style="text-align: right;">70.29</td>
-<td style="text-align: right;">57.44</td>
-<td style="text-align: right;"><strong>34.94</strong></td>
-<td style="text-align: right;">57.05</td>
-<td style="text-align: right;"><strong>70.64</strong></td>
-</tr>
-<tr>
-<td>Δ (e29 − baseline)</td>
-<td style="text-align: right;"></td>
-<td style="text-align: right;">−0.25</td>
-<td style="text-align: right;">−0.11</td>
-<td style="text-align: right;">−0.33</td>
-<td style="text-align: right;"><strong>+0.72</strong></td>
-<td style="text-align: right;">−0.04</td>
-<td style="text-align: right;"><strong>+0.50</strong></td>
-</tr>
-</tbody>
-</table></div>
-<aside class="summary"><p><strong>Best checkpoints:</strong> e29 is within <strong>0.25 AP</strong> of the baseline and <strong>+0.72 AP<sub>S</sub></strong> ahead on small objects, with 4% fewer parameters and about 16% lower latency. At epoch 69 itself, the two runs are tied: 52.78 versus 52.81 AP.</p></aside>
-<p>Neither number includes the final no-augmentation stage (epochs 90–101), which restarts from each run's best stage-1 checkpoint. For the baseline, that stage adds 0.22 AP, from 53.07 to 53.29.</p>
-<h3 id="early-saturation">Early saturation: a shorter schedule may suit the distilled backbone</h3>
-<p>e29 saturates early. It peaks at epoch 69 and then drifts up to 0.4 AP lower through epoch 86, while the baseline keeps improving until epoch 88. Because the final stage restarts from the best checkpoint, the epochs after 69 add nothing. A shorter schedule may therefore suit a distilled backbone better. <a href="https://arxiv.org/abs/2603.18739">EdgeCrafter</a> takes this approach: its distilled ECDet-M trains for 60 + 2 epochs, versus 102 for RT-DETRv4-M, and still gains 0.8 AP at about 32% lower training cost.</p>
 <h3 id="conclusion">Conclusion</h3>
-<p>The pre-distilled MobileNetV4 detector nearly ties RT-DETRv4-M on COCO: <strong>52.78 versus 53.03 AP</strong> at the best checkpoints, with 4% fewer parameters and about 16% lower latency. Small objects are the strongest result: <strong>34.94 versus 34.22 AP<sub>S</sub></strong>, even though MobileNetV4's stride-8 feature map has only <strong>80 channels</strong>, versus 384 in HGNetv2-B2.</p>
+<p>The pre-distilled MobileNetV4 detector roughly ties RT-DETRv4-M on COCO: <strong>52.78 versus 53.29 AP</strong> against the baseline's final checkpoint, even with a shorter schedule (best at epoch 69 versus 92) and without a no-augmentation stage. It has 4% fewer parameters and about 16% lower latency. Small objects are the strongest result: <strong>34.94 versus 34.37 AP<sub>S</sub></strong>, even though MobileNetV4's stride-8 feature map has only <strong>80 channels</strong>, versus 384 in HGNetv2-B2.</p>
 <p>It is also ahead of RF-DETR on small objects at the same size. In RF-DETR's design ablation, the medium model with the DINOv2 backbone reaches <strong>34.3 AP<sub>S</sub></strong>. The next step, to 35.8 AP<sub>S</sub>, comes from additional Objects365 pretraining. That 34.3 already includes 60 epochs of Objects365 pretraining, while our detector uses none. <a href="https://arxiv.org/html/2511.09554v2">RF-DETR paper, Tables 5 and 6</a>.</p>
 <p><strong>Future directions.</strong> Distillation still leaves a large gap to the teacher: after 30 epochs, the student's cosine similarity with the teacher is only about <strong>0.55 at F/16</strong> and <strong>0.82 at F/32</strong>. A backbone that can absorb more of the teacher's features could raise AP further. On the latency side, stronger backbone features may allow a simpler neck, cutting more of the F/8 fusion cost at high resolution.</p>
 <h2 id="appendix-distillation-method">Appendix: distillation method</h2>
