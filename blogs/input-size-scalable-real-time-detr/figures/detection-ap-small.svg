@@ -9,7 +9,7 @@
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib; values parsed from the author's HTML reports</dc:title>
+      <dc:title>Matplotlib; values parsed from the author's training logs</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -35,6 +35,14 @@ L 327.2 20.64
 L 39.498 20.64 
 z
 " style="fill: #191919"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 287.087702 209.64 
+L 327.2 209.64 
+L 327.2 20.64 
+L 287.087702 20.64 
+z
+" clip-path="url(#p2f70586d3f)" style="fill: #ffffff; opacity: 0.05"/>
    </g>
    <g id="matplotlib.axis_1">
     <g id="xtick_1">
@@ -434,6 +442,29 @@ L 205.479923 32.151818
 L 208.246288 33.354545 
 L 211.012654 32.409545 
 L 213.779019 31.808182 
+L 216.545385 32.495455 
+L 219.31175 30.777273 
+L 222.078115 30.175909 
+L 224.844481 29.746364 
+L 227.610846 30.09 
+L 230.377212 29.746364 
+L 233.143577 28.801364 
+L 235.909942 28.114091 
+L 238.676308 26.825455 
+L 241.442673 31.378636 
+L 244.209038 29.488636 
+L 246.975404 28.371818 
+L 249.741769 29.660455 
+L 252.508135 28.114091 
+L 255.2745 32.839091 
+L 258.040865 31.808182 
+L 260.807231 31.292727 
+L 263.573596 31.894091 
+L 266.339962 30.949091 
+L 269.106327 31.722273 
+L 271.872692 32.581364 
+L 274.639058 31.808182 
+L 277.405423 32.151818 
 " clip-path="url(#p2f70586d3f)" style="fill: none; stroke: #ffb400; stroke-width: 2; stroke-linecap: square"/>
    </g>
    <g id="line2d_27">
@@ -451,39 +482,56 @@ z
 " style="stroke: #ffb400"/>
     </defs>
     <g clip-path="url(#p2f70586d3f)">
-     <use xlink:href="#mc814158bdc" x="213.779019" y="31.808182" style="fill: #ffb400; stroke: #ffb400"/>
+     <use xlink:href="#mc814158bdc" x="230.377212" y="29.746364" style="fill: #ffb400; stroke: #ffb400"/>
     </g>
    </g>
-   <g id="patch_3">
+   <g id="patch_4">
     <path d="M 39.498 209.64 
 L 39.498 20.64 
 " style="fill: none; stroke: #505050; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_4">
+   <g id="patch_5">
     <path d="M 327.2 209.64 
 L 327.2 20.64 
 " style="fill: none; stroke: #505050; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_5">
+   <g id="patch_6">
     <path d="M 39.498 209.64 
 L 327.2 209.64 
 " style="fill: none; stroke: #505050; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_6">
+   <g id="patch_7">
     <path d="M 39.498 20.64 
 L 327.2 20.64 
 " style="fill: none; stroke: #505050; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_7">
-    <path d="M 220.819391 103.761992 
-Q 217.396535 68.77981 213.973678 33.797627 
+   <g id="text_14">
+    <text style="font-size: 7px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #bcbcbc" transform="translate(294.179291 194.67575)">no-aug</text>
+    <text style="font-size: 7px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #bcbcbc" transform="translate(296.736478 202.514219)">stage</text>
+   </g>
+   <g id="patch_8">
+    <path d="M 223.306877 103.762945 
+Q 226.74689 67.750788 230.186903 31.738631 
 " style="fill: none; stroke: #666666; stroke-width: 0.8; stroke-linecap: round"/>
    </g>
-   <g id="text_14">
-    <text style="font-size: 8.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #c9c9c9" transform="translate(177.981709 114.212768)">Epoch 63: e29 34.70</text>
-    <text style="font-size: 8.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #c9c9c9" transform="translate(184.678779 123.730909)">vs baseline 34.08</text>
-   </g>
    <g id="text_15">
+    <text style="font-size: 8.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #c9c9c9" transform="translate(187.380186 114.212768)">e29 at epoch 69</text>
+    <!-- 34.94 AP$_S$ -->
+    <g style="fill: #c9c9c9" transform="translate(201.040615 123.730909)">
+     <text>
+      <tspan x="0" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9">3</tspan>
+      <tspan x="5.407959" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9">4</tspan>
+      <tspan x="10.815918" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9">.</tspan>
+      <tspan x="13.517822" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9">9</tspan>
+      <tspan x="18.925781" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9">4</tspan>
+      <tspan x="24.33374" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9"> </tspan>
+      <tspan x="27.035645" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9">A</tspan>
+      <tspan x="32.850342" y="-0.3125" style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #c9c9c9">P</tspan>
+      <tspan x="38.062207" y="1.164062" style="font-style: oblique; font-size: 5.95px; font-family: 'DejaVu Sans'; fill: #c9c9c9">S</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_16">
     <text style="font-size: 11px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #c9c9c9" x="183.349" y="12.64" transform="rotate(-0 183.349 12.64)">Small-object AP</text>
    </g>
   </g>
